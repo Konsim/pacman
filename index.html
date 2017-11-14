@@ -26,6 +26,10 @@
         this.map = null;
         this.layer = null;
         this.pacman = null;
+        this.timer;
+        this.milliseconds = 0;
+        this.seconds = 0;
+        this.minutes = 0;
 
         this.safetile = 14;
         this.gridsize = 16;
@@ -62,20 +66,18 @@
 
             //  We need this because the assets are on github pages
             //  Remove the next 2 lines if running locally
-            this.load.baseURL = 'https://konsim.github.io/pacman/';
-            this.load.crossOrigin = 'anonymous';
+            //this.load.baseURL = 'https://konsim.github.io/pacman/';
+            //this.load.crossOrigin = 'anonymous';
 
-            var timer;
-            var milliseconds = 0;
-            var seconds = 0;
-            var minutes = 0;
+            
             this.load.audio('soundtrack','assets/sound/soundtrack.mp3');
             this.load.audio('deathsound','assets/sound/deathsound.wav');
             this.load.audio('dotkill','assets/sound/dotkill.wav');
             this.load.image('dot', 'assets/dot3.png');
+            this.load.image('bonus', 'assets/bonus.png');
             this.load.image('tiles', 'assets/pacman-tiles.png');
             this.load.spritesheet('pacman', 'assets/mspactrans.png', 32, 32);
-            this.load.tilemap('map', 'assets/pacman-map1.json', null, Phaser.Tilemap.TILED_JSON);
+            this.load.tilemap('map', 'assets/pacman-map2.json', null, Phaser.Tilemap.TILED_JSON);
 
             //  Needless to say, graphics (C)opyright Namco
 
@@ -96,8 +98,11 @@
             this.layer = this.map.createLayer('Pacman');
 
             this.dots = this.add.physicsGroup();
+            this.bonus= this.add.physicsGroup();
 
             this.map.createFromTiles(7, this.safetile, 'dot', this.layer, this.dots);
+            this.map.createFromTiles(35, this.safetile, 'bonus', this.layer, this.bonus);
+
 
             //  The dots will need to be offset by 6px to put them back in the middle of the grid
             this.dots.setAll('x', 0, false, false, 1);
@@ -105,6 +110,12 @@
 
             //  Pacman should collide with everything except the safe tile
             this.map.setCollisionByExclusion([this.safetile], true, this.layer);
+
+
+
+
+
+
 
             //  Position Pacman at grid location 14x17 (the +8 accounts for his anchor)
             this.pacman = this.add.sprite((14 * 16) + 8, (17 * 16) + 8, 'pacman', 0);
@@ -256,10 +267,23 @@
 
         },
 
+        eatBonus: function (pacman, bonus) {
+            var bonuskill;
+            bonus.kill();
+            bonuskill=game.add.audio('dotkill');
+            bonuskill.play();
+            this.score=this.score+400;
+            this.textscore.text='Score:'+this.score;
+
+            
+        },
+
+
         update: function () {
           
             this.physics.arcade.collide(this.pacman, this.layer);
             this.physics.arcade.overlap(this.pacman, this.dots, this.eatDot, null, this);
+            this.physics.arcade.overlap(this.pacman, this.bonus, this.eatBonus, null, this);
 
             this.marker.x = this.math.snapToFloor(Math.floor(this.pacman.x), this.gridsize) / this.gridsize;
             this.marker.y = this.math.snapToFloor(Math.floor(this.pacman.y), this.gridsize) / this.gridsize;
@@ -280,13 +304,13 @@
 
         },
         updateTimer: function(){
-            minutes = Math.floor(game.time.time / 60000) % 60;
-            seconds = Math.floor(game.time.time / 1000) % 60;
-            milliseconds = Math.floor(game.time.time) % 100;
-            if (milliseconds < 10)  milliseconds = '0' + milliseconds;
-            if (seconds < 10)  seconds = '0' + seconds; 
-            if (minutes < 10)  minutes = '0' + minutes; 
-            timer.setText(minutes + ':'+ seconds + ':' + milliseconds);
+            this.minutes = Math.floor(game.time.time / 60000) % 60;
+            this.seconds= Math.floor(game.time.time / 1000) % 60;
+            this.milliseconds= Math.floor(game.time.time) % 100;
+            if (this.milliseconds < 10)  this.milliseconds = '0' + this.milliseconds;
+            if (this.seconds < 10)  this.seconds = '0' + this.seconds; 
+            if (this.minutes < 10)  this.minutes = '0' + this.minutes; 
+            timer.setText(this.minutes + ':'+ this.seconds + ':' + this.milliseconds);
         }
 
     };
