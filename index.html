@@ -70,7 +70,7 @@
             this.load.crossOrigin = 'anonymous';
 
             
-            this.load.audio('soundtrack','assets/sound/soundtrack.mp3');
+            this.load.audio('soundtrack','assets/sound/soundtrack.ogg');
             this.load.audio('deathsound','assets/sound/deathsound.wav');
             this.load.audio('dotkill','assets/sound/dotkill.wav');
             this.load.image('dot', 'assets/dot3.png');
@@ -90,7 +90,7 @@
 
             var soundtrack;
             soundtrack=game.add.audio('soundtrack');
-            soundtrack.play();
+            soundtrack.play('',0,1,true);
 
             this.map = this.add.tilemap('map');
             this.map.addTilesetImage('pacman-tiles', 'tiles');
